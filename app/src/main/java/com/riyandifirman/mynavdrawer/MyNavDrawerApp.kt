@@ -27,51 +27,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MyNavDrawerApp() {
-
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
+    val appState = rememberMyNavDrawerState()
     Scaffold(
-        scaffoldState = scaffoldState,
+        scaffoldState = appState.scaffoldState,
         topBar = {
             MyTopBar(
-                onMenuClick = {
-                    scope.launch {
-                        scaffoldState.drawerState.open()
-                    }
-                }
+                onMenuClick = appState::onMenuClick
             )
         },
         drawerContent = {
             MyDrawerContent(
-                onItemSelected = {title ->
-                    scope.launch {
-                        scaffoldState.drawerState.close()
-                        val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                            message = context.resources.getString(R.string.coming_soon, title),
-                            actionLabel = context.resources.getString(R.string.subscribe_question)
-                        )
-                        if (snackbarResult == SnackbarResult.ActionPerformed) {
-                            Toast.makeText(
-                                context,
-                                context.resources.getString(R.string.subscribed_info),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                },
-                onBackPress = {
-                    if (scaffoldState.drawerState.isOpen) {
-                        scope.launch {
-                            scaffoldState.drawerState.close()
-                        }
-                    }
-                },
+                onItemSelected = appState::onItemSelected,
+                onBackPress = appState::onBackPress,
             )
         },
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-    ) { paddingValues ->
+        drawerGesturesEnabled = appState.scaffoldState.drawerState.isOpen,
+    ){ paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
